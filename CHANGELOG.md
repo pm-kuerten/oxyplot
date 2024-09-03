@@ -29,6 +29,7 @@ All notable changes to this project will be documented in this file.
 - AxisRendererBase is now generic
 - DateTimeAxis.ToDateTime(double value) is now obsolete, replacements are provided (related to #2061)
 - Modify some of the examples to make them deterministic
+- Update SixLabors.ImageSharp.Drawing to non-beta version 1.0.0
 
 ### Removed
 - Support for .NET Framework 4.0 and 4.5 (#1839)
@@ -46,6 +47,7 @@ All notable changes to this project will be documented in this file.
 - SkiaSharp - Fix use of obsolete functions (#1937)
 - Dashed lines are solid when exporting via SkiaSharp.SvgExporter (#1674)
 - DateTimeAxis.ToDateTime doesn't behave as intended in .NET 8 (#2061) 
+- FontFamily ignored by DrawMultilineText
 
 ## [2.1.2] - 2022-12-03
 
@@ -56,6 +58,7 @@ All notable changes to this project will be documented in this file.
 - Add `AxisPreference` to `PlotManipulator`
 - Add MinimumMajorIntervalCount and MaximumMajorIntervalCount Axis Properties (#24)
 - Add VisualStudioToolsManifest.xml to add components to the Visual Studio Designer toolbox (#1446)
+- Add support for `LineJoin` in OxyPlot.ImageSharp
 
 ### Changed
 - Change default `MinimumSegmentLength` to `2` and remove limits for series and annotations with simple geometry (#1853)
