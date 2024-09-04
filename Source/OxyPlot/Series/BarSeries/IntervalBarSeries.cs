@@ -99,7 +99,7 @@ namespace OxyPlot.Series
                     var categoryIndex = item.GetCategoryIndex(i);
                     var value = (this.ValidItems[i].Start + this.ValidItems[i].End) / 2;
                     var dp = new DataPoint(categoryIndex, value);
-                    var categoryAxis = this.GetCategoryAxis();
+                    var categoryAxis = this.CategoryAxis;
                     var valueAxis = this.XAxis;
                     return new TrackerHitResult
                     {

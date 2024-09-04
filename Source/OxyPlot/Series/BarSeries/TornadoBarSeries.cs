@@ -139,7 +139,7 @@ namespace OxyPlot.Series
                     var categoryIndex = item.GetCategoryIndex(i);
                     var value = insideMaximumRectangle ? this.ValidItems[i].Maximum : this.ValidItems[i].Minimum;
                     var dp = new DataPoint(categoryIndex, value);
-                    var categoryAxis = this.GetCategoryAxis();
+                    var categoryAxis = this.CategoryAxis;
                     return new TrackerHitResult
                     {
                         Series = this,

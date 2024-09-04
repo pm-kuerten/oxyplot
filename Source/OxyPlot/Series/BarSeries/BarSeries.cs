@@ -181,7 +181,7 @@ namespace OxyPlot.Series
             base.UpdateAxisMaxMin();
 
             this.ComputeActualBaseLine();
-            this.XAxis.Include(this.ActualBaseLine);
+            this.ValueAxis.Include(this.ActualBaseLine);
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace OxyPlot.Series
         {
             if (double.IsNaN(this.BaseLine))
             {
-                if (this.XAxis.IsLogarithmic())
+                if (this.ValueAxis.IsLogarithmic())
                 {
                     var lowestPositiveValue = this.ActualItems == null ? 1 : this.ActualItems.Select(p => p.Value).Where(v => v > 0).MinOrDefault(1);
                     this.ActualBaseLine = Math.Max(lowestPositiveValue / 10.0, this.BaseValue);
@@ -217,12 +217,12 @@ namespace OxyPlot.Series
                 return;
             }
 
-            var categoryAxis = this.GetCategoryAxis();
+            var categoryAxis = this.CategoryAxis;
 
             double minValue = double.MaxValue, maxValue = double.MinValue;
             if (this.IsStacked)
             {
-                var labels = this.GetCategoryAxis().ActualLabels;
+                var labels = categoryAxis.ActualLabels;
                 for (var i = 0; i < labels.Count; i++)
                 {
                     var j = 0;
@@ -275,8 +275,8 @@ namespace OxyPlot.Series
         /// <inheritdoc/>
         protected virtual string GetTrackerText(BarItem barItem, object item, int categoryIndex)
         {
-            var categoryAxis = this.GetCategoryAxis();
-            var valueAxis = this.XAxis;
+            var categoryAxis = this.CategoryAxis;
+            var valueAxis = this.ValueAxis;
 
             return StringHelper.Format(
                 this.ActualCulture,
@@ -290,7 +290,7 @@ namespace OxyPlot.Series
         /// <inheritdoc/>
         protected override bool IsValid(BarItem item)
         {
-            return this.XAxis.IsValidValue(item.Value);
+            return this.ValueAxis.IsValidValue(item.Value);
         }
 
         /// <summary>
@@ -362,7 +362,7 @@ namespace OxyPlot.Series
 
                 var topValue = this.IsStacked ? baseValue + value : value;
 
-                if (this.YAxis.IsLogarithmic() && !this.YAxis.IsValidValue(topValue))
+                if (this.CategoryAxis.IsLogarithmic() && !this.CategoryAxis.IsValidValue(topValue))
                 {
                     continue;
                 }
@@ -383,10 +383,19 @@ namespace OxyPlot.Series
                     this.Manager.SetCurrentBaseValue(stackIndex, categoryIndex, value < 0, topValue);
                 }
 
-                var clampBase = this.XAxis.IsLogarithmic() && !this.XAxis.IsValidValue(baseValue);
-                var p1 = this.Transform(clampBase ? this.XAxis.ClipMinimum : baseValue, categoryValue);
-                var p2 = this.Transform(topValue, categoryValue + actualBarWidth);
-
+                var clampBase = this.ValueAxis.IsLogarithmic() && !this.ValueAxis.IsValidValue(baseValue);
+                ScreenPoint p1;
+                ScreenPoint p2;
+                if (this.IsVertical)
+                {
+                    p1 = this.Transform(categoryValue, clampBase ? this.ValueAxis.ClipMinimum : baseValue);
+                    p2 = this.Transform(categoryValue + actualBarWidth, topValue);
+                }
+                else
+                {
+                    p1 = this.Transform(clampBase ? this.ValueAxis.ClipMinimum : baseValue, categoryValue);
+                    p2 = this.Transform(topValue, categoryValue + actualBarWidth);
+                }
                 var rectangle = new OxyRect(p1, p2);
 
                 this.ActualBarRectangles.Add(rectangle);

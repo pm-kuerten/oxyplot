@@ -54,16 +54,16 @@ namespace OxyPlot.Series
         public double BarWidth { get; set; }
 
         /// <inheritdoc/>
-        CategoryAxis IBarSeries.CategoryAxis => this.GetCategoryAxis();
+        CategoryAxis IBarSeries.CategoryAxis => this.CategoryAxis;
 
         /// <summary>
         /// Gets the items list.
         /// </summary>
         /// <value>A list of <see cref="BarItem" />.</value>
-        public List<T> Items { get; } = new List<T>();
+        public List<T> Items { get; } = new();
 
         /// <inheritdoc/>
-        Axis IBarSeries.ValueAxis => this.XAxis;
+        Axis IBarSeries.ValueAxis => this.ValueAxis;
 
         /// <summary>
         /// Gets or sets the items from the items source.
@@ -127,22 +127,42 @@ namespace OxyPlot.Series
         /// <remarks>The actual width is also influenced by the GapWidth of the CategoryAxis used by this series.</remarks>
         protected double GetActualBarWidth()
         {
-            var categoryAxis = this.GetCategoryAxis();
+            var categoryAxis = this.CategoryAxis;
             return this.BarWidth / (1 + categoryAxis.GapWidth) / this.Manager.GetMaxWidth();
         }
 
         /// <summary>
-        /// Gets the category axis.
+        /// The category axis.
         /// </summary>
-        /// <returns>The category axis.</returns>
-        protected CategoryAxis GetCategoryAxis()
-        {
-            if (!(this.YAxis is CategoryAxis ca))
-            {
-                throw new Exception("BarSeries requires a CategoryAxis on the Y Axis.");
-            }
+        protected CategoryAxis CategoryAxis { get; private set; }
 
-            return ca;
+        /// <summary>
+        /// The value axis
+        /// </summary>
+        protected Axis ValueAxis { get; private set; }
+
+        /// <summary>
+        /// Describes if the bar series is rendered vertical or horizontal
+        /// </summary>
+        protected bool IsVertical { get; private set; }
+
+        /// <inheritdoc />
+        protected internal override void EnsureAxes()
+        {
+            base.EnsureAxes();
+            if (this.YAxis is CategoryAxis y)
+            {
+                this.CategoryAxis = y;
+                this.ValueAxis = this.XAxis;
+                this.IsVertical = false;
+            }
+            else if (this.XAxis is CategoryAxis x)
+            {
+                this.CategoryAxis = x;
+                this.ValueAxis = this.YAxis;
+                this.IsVertical = true;
+            }
+            else throw new Exception("BarSeries requires a CategoryAxis");
         }
 
         /// <inheritdoc/>
@@ -261,27 +281,56 @@ namespace OxyPlot.Series
                 this.LabelAngle);
             var halfSize = (this.IsTransposed() ? size.Height : size.Width) / 2;
 
-            switch (this.LabelPlacement)
+            if (this.IsVertical)
             {
-                case LabelPlacement.Inside:
-                    pt = this.Transform(topValue, y);
-                    marginVector = -marginVector;
-                    centreVector = new ScreenVector(-sign * halfSize, 0);
-                    break;
-                case LabelPlacement.Outside:
-                    pt = this.Transform(topValue, y);
-                    centreVector = new ScreenVector(sign * halfSize, 0);
-                    break;
-                case LabelPlacement.Middle:
-                    pt = this.Transform((topValue + baseValue) / 2, y);
-                    marginVector = new ScreenVector(0, 0);
-                    break;
-                case LabelPlacement.Base:
-                    pt = this.Transform(baseValue, y);
-                    centreVector = new ScreenVector(sign * halfSize, 0);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+
+                switch (this.LabelPlacement)
+                {
+                    case LabelPlacement.Inside:
+                        pt = this.Transform(y, topValue);
+                        marginVector = -marginVector;
+                        centreVector = new ScreenVector(0, sign * halfSize);
+                        break;
+                    case LabelPlacement.Outside:
+                        pt = this.Transform(y, topValue);
+                        centreVector = new ScreenVector(0, -sign * halfSize);
+                        break;
+                    case LabelPlacement.Middle:
+                        pt = this.Transform(y, (topValue + baseValue) / 2);
+                        marginVector = new ScreenVector(0, 0);
+                        break;
+                    case LabelPlacement.Base:
+                        pt = this.Transform(y, baseValue);
+                        centreVector = new ScreenVector(0, sign * halfSize);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            else
+            {
+                switch (this.LabelPlacement)
+                {
+                    case LabelPlacement.Inside:
+                        pt = this.Transform(topValue, y);
+                        marginVector = -marginVector;
+                        centreVector = new ScreenVector(-sign * halfSize, 0);
+                        break;
+                    case LabelPlacement.Outside:
+                        pt = this.Transform(topValue, y);
+                        centreVector = new ScreenVector(sign * halfSize, 0);
+                        break;
+                    case LabelPlacement.Middle:
+                        pt = this.Transform((topValue + baseValue) / 2, y);
+                        marginVector = new ScreenVector(0, 0);
+                        break;
+                    case LabelPlacement.Base:
+                        pt = this.Transform(baseValue, y);
+                        centreVector = new ScreenVector(sign * halfSize, 0);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
 
             pt += this.Orientate(marginVector) + this.Orientate(centreVector);
@@ -301,8 +350,8 @@ namespace OxyPlot.Series
         /// <inheritdoc/>
         protected internal override void UpdateAxisMaxMin()
         {
-            this.XAxis.Include(this.MinX);
-            this.XAxis.Include(this.MaxX);
+            this.ValueAxis.Include(this.MinX);
+            this.ValueAxis.Include(this.MaxX);
         }
 
         /// <inheritdoc/>

@@ -58,12 +58,12 @@ namespace OxyPlot.Series
                 return;
             }
 
-            var categoryAxis = this.GetCategoryAxis();
+            var categoryAxis = this.CategoryAxis;
 
             double minValue = double.MaxValue, maxValue = double.MinValue;
             if (this.IsStacked)
             {
-                var labels = this.GetCategoryAxis().ActualLabels;
+                var labels = this.CategoryAxis.ActualLabels;
                 for (var i = 0; i < labels.Count; i++)
                 {
                     int j = 0;
