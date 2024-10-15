@@ -499,13 +499,15 @@ namespace OxyPlot
             }
         }
 
+        void IPlotModel.AttachPlotView(IPlotView plotView) => this.AttachPlotView(plotView);
+
         /// <summary>
         /// Attaches this model to the specified plot view.
         /// </summary>
         /// <param name="plotView">The plot view.</param>
         /// <remarks>Only one plot view can be attached to the plot model.
         /// The plot model contains data (e.g. axis scaling) that is only relevant to the current plot view.</remarks>
-        void IPlotModel.AttachPlotView(IPlotView plotView)
+        public void AttachPlotView(IPlotView plotView)
         {
             var currentPlotView = this.PlotView;
             if (!object.ReferenceEquals(currentPlotView, null) &&
