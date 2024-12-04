@@ -6,6 +6,9 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
     </PropertyGroup>
     <ItemGroup>
+      <PackageReference Include="System.Private.Uri" Version="4.3.2" />
+    </ItemGroup>
+    <ItemGroup>
         <ProjectReference Include="..\..\..\OxyPlot.SkiaSharp.Wpf\OxyPlot.SkiaSharp.Wpf.csproj" />
         <ProjectReference Include="..\..\..\OxyPlot.Wpf\OxyPlot.Wpf.csproj" />
         <ProjectReference Include="..\..\..\OxyPlot\OxyPlot.csproj" />
